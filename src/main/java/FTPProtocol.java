@@ -12,7 +12,7 @@ public class FTPProtocol {
         try {
 
             //Host Name
-            String host = "IP address or url here.";
+            String host = "192.168.100.5";
 
             //Create Control Channel
             Socket clientSocket = new Socket(host, 21);
@@ -25,18 +25,16 @@ public class FTPProtocol {
             System.out.println("-----------------");
 
             //login
-            System.out.println("Logining into FTP server...");
+            System.out.println("Logging into FTP server...");
             outToServer.writeBytes("USER anonymous\r\n");
             outToServer.writeBytes("PASS \r\n");
 
             //cd to directory with CSV file
-            outToServer.writeBytes("cwd ____name_here____\r\n");
 
             //retrieve CSV file
-            String dlFileName = "sensor4Data.csv";
             Socket dataSocketDl = generateDataSocket(outToServer, inFromServer);
             InputStreamReader inFromDataSocketDl = new InputStreamReader((dataSocketDl.getInputStream()));
-            outToServer.writeBytes("retr sensor4Data.csv\r\n");
+            outToServer.writeBytes("retr sensorData.csv\r\n");
             dlFile(inFromDataSocketDl);
 
         } catch (java.io.IOException ioE) {
@@ -55,6 +53,9 @@ public class FTPProtocol {
     public static Socket generateDataSocket(DataOutputStream outToServer, BufferedReader inFromServer) throws java.io.IOException {
         String newSocketAddress = null;
         outToServer.writeBytes("PASV\r\n");
+        String asksForPass = inFromServer.readLine();
+        outToServer.writeBytes("\r\n");
+        String acceptedPass = inFromServer.readLine();
         newSocketAddress = inFromServer.readLine();
         System.out.println(newSocketAddress);
 
@@ -82,15 +83,15 @@ public class FTPProtocol {
 
 
         int finalP = ((Integer.parseInt(port[4]) * 256)
-                + Integer.parseInt(port[5].substring(0, port[5].length() - 1)));
+                + Integer.parseInt(port[5].substring(0, port[5].length() - 2)));
 
         return finalP;
     }
 
     public static void dlFile(InputStreamReader inFromDataSocketDl)throws java.io.IOException {
 
-        String sensorFilePath = "ext/sensorData.csv";
-        String sensor4FilePath = "ext/sensor4Highest.csv";
+        String sensorFilePath = "sensorData.csv";
+        String sensor4FilePath = "sensor4Highest.csv";
 
         File drop = new File(sensorFilePath);
         drop.delete();
